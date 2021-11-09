@@ -1,9 +1,14 @@
 let populationVal,speedLimit,viewDistance,separationForce,aligmentForce,cohesionForce,p;
 let entities = [];
 
+
 function setup() {
+
+  // let framerate = 60;
+
   createCanvas(window.innerWidth, window.innerHeight);
-  // createCanvas(1000, 800);
+  // frameRate(framerate);
+
 
   window.addEventListener('resize', resizeCanvasCallback, false);
   function resizeCanvasCallback() {
@@ -18,7 +23,8 @@ function setup() {
       factdiv = 1920;
     }
   }
-  populationVal = 90;
+
+  populationVal = 1;
   speedLimit = 3;
   viewDistance = 50;
   
@@ -43,14 +49,12 @@ function draw() {
 
 }
 
-// function mouseClicked(){
-//   p = random(0,360);
-//   console.log(p);
-// }
+function mouseClicked(){
+  p = random(0,360);
+}
 
 function mouseDragged(){
-  // console.log(p);
-  entities.push(new Boid(entities.length + 1,mouseX,mouseY,100 ) );
+  entities.push(new Boid(entities.length + 1,mouseX,mouseY,p ) );
 }
 
 
@@ -63,6 +67,8 @@ class Boid{
     
     this.origin_clr = passClr;
     this.clr = this.origin_clr;
+    this.pastClr = this.clr;
+
 
     this.index = i;
   }
@@ -78,17 +84,13 @@ class Boid{
   
   NearbyCheck(){
 
-    this.nearby = []; 
-    this.VeryNearby = []; 
+    this.nearby = [];  
 
     for(let j = 0;j < entities.length;j++){
       let d = dist(this.position.x,this.position.y,entities[j].position.x,entities[j].position.y);
       if(this.index != j && d < viewDistance ){
         this.nearby.push(entities[j]);
         
-        if(d < (viewDistance*1.4)){
-          this.VeryNearby.push(entities[j]);
-        }
       }
     }
   
@@ -108,36 +110,26 @@ class Boid{
   }
 
   ColourChange(){
-    // let whitness = 0;
-    this.clr = this.origin_clr;
+      this.clr = this.origin_clr;
     
     
-    if(this.VeryNearby.length > 0){
-      this.VeryNearby.forEach( veryNearBoid =>{
-        this.clr += veryNearBoid.clr;
+    if(this.nearby.length > 0){
+      this.nearby.forEach( nearBoid =>{
+        this.clr += nearBoid.origin_clr;
       })
-      // whitness = 100;
       
-      this.clr /= this.VeryNearby.length;
-      
-      // if(this.clr > this.pastClr){
-      //   this.clr += 2;
-      // }else if(this.clr > this.pastClr){
-      //   this.clr -= 2
-      // }
-      
+      this.clr /= this.nearby.length;
+   
     } else if(this.clr <  this.origin_clr){
-      this.clr += 1;
+      this.clr += 0.5;
     }else if(this.clr > this.origin_clr){
-      this.clr += 1;
+      this.clr += 0.5;  
     }
     
 
     this.clr %= 360;
     fill(this.clr,80,100);
 
-    this.pastClr = this.clr;
-    // console.log(this.pastClr);
   }
   
   Show(){
