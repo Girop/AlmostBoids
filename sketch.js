@@ -7,6 +7,8 @@ function setup() {
 
   window.addEventListener('resize', resizeCanvasCallback, false);
   function resizeCanvasCallback() {
+    const bodyElem = document.getElementsByTagName("body")[0]
+    console.log(bodyElem.clientHeight, windowHeight)
     resizeCanvas(windowWidth, windowHeight);
 
     if (windowHeight > windowWidth) {
@@ -30,7 +32,13 @@ function setup() {
   
   //Boids init  
   for(let i = 0;i < populationVal;i++){
-    entities[i] = new Boid(i,random(0,width),random(0,height),random(0,360));
+
+    entities[i] = new Boid(
+      i,
+      random(0,width),
+      random(0,height),
+      random(0, 360),
+      );
   }
   
 }
@@ -50,7 +58,15 @@ function draw() {
 
 function mouseDragged(){
   // console.log(p);
-  entities.push(new Boid(entities.length + 1,mouseX,mouseY,100 ) );
+  
+  entities.push(new Boid(
+    entities.length + 1,
+    mouseX,
+    mouseY,
+    random(0, 360)
+    ) 
+  );
+  console.log(entities.length)
 }
 
 
@@ -60,10 +76,9 @@ class Boid{
     this.position = createVector(x,y);
     this.velocity = p5.Vector.random2D();
     this.acc = createVector();
-    
     this.origin_clr = passClr;
     this.clr = this.origin_clr;
-
+    
     this.index = i;
   }
 
@@ -79,17 +94,21 @@ class Boid{
   NearbyCheck(){
 
     this.nearby = []; 
-    this.VeryNearby = []; 
-
     for(let j = 0;j < entities.length;j++){
-      let d = dist(this.position.x,this.position.y,entities[j].position.x,entities[j].position.y);
-      if(this.index != j && d < viewDistance ){
-        this.nearby.push(entities[j]);
-        
-        if(d < (viewDistance*1.4)){
-          this.VeryNearby.push(entities[j]);
+      let entity = entities[j]
+
+
+
+        let d = dist(
+          this.position.x, 
+          this.position.y, 
+          entity.position.x, 
+          entity.position.y
+        );
+        if(this.index != j && d < viewDistance ){
+          this.nearby.push(entity);
+          
         }
-      }
     }
   
   }
@@ -112,32 +131,22 @@ class Boid{
     this.clr = this.origin_clr;
     
     
-    if(this.VeryNearby.length > 0){
-      this.VeryNearby.forEach( veryNearBoid =>{
-        this.clr += veryNearBoid.clr;
-      })
-      // whitness = 100;
+    if(this.nearby.length > 0){
       
-      this.clr /= this.VeryNearby.length;
-      
-      // if(this.clr > this.pastClr){
-      //   this.clr += 2;
-      // }else if(this.clr > this.pastClr){
-      //   this.clr -= 2
-      // }
-      
-    } else if(this.clr <  this.origin_clr){
-      this.clr += 1;
-    }else if(this.clr > this.origin_clr){
-      this.clr += 1;
-    }
-    
+      let newClr = this.nearby[0].clr;
+      for(let nearbyEntity of this.nearby){
+        if (nearbyEntity.clr != this.clr){
+          newClr = nearbyEntity.clr
+        }
+      }
+      this.clr = newClr
 
+
+      
+    }
     this.clr %= 360;
     fill(this.clr,80,100);
 
-    this.pastClr = this.clr;
-    // console.log(this.pastClr);
   }
   
   Show(){
