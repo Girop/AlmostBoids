@@ -144,6 +144,9 @@ class Boid{
 
       
     }
+    else{
+      this.clr = this.origin_clr
+    }
     this.clr %= 360;
     fill(this.clr,80,100);
 
