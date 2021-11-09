@@ -3,8 +3,21 @@ let entities = [];
 let clr = 0;
 
 function setup() {
-  createCanvas(screen.width, screen.height);
+  createCanvas(window.innerWidth, window.innerHeight);
   // createCanvas(1000, 800);
+  window.addEventListener('resize', resizeCanvasCallback, false);
+  function resizeCanvasCallback() {
+    resizeCanvas(windowWidth, windowHeight);
+
+    if (windowHeight > windowWidth) {
+      factor = windowHeight
+      factdiv = 1080;
+
+    } else {
+      factor = windowWidth;
+      factdiv = 1920;
+    }
+  }
   populationVal = 110;
   speedLimit = 3;
   viewDistance = 110;
