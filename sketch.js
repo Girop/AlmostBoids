@@ -13,7 +13,6 @@ function setup() {
   window.addEventListener('resize', resizeCanvasCallback, false);
   function resizeCanvasCallback() {
     const bodyElem = document.getElementsByTagName("body")[0]
-    console.log(bodyElem.clientHeight, windowHeight)
     resizeCanvas(windowWidth, windowHeight);
 
     if (windowHeight > windowWidth) {
@@ -26,7 +25,7 @@ function setup() {
     }
   }
 
-  populationVal = 1;
+  populationVal = 50;
   speedLimit = 3;
   viewDistance = 50;
   
@@ -62,7 +61,6 @@ function mouseClicked(){
 }
 
 function mouseDragged(){
-  // console.log(p);
   
   entities.push(new Boid(
     entities.length + 1,
@@ -71,7 +69,6 @@ function mouseDragged(){
     random(0, 360)
     ) 
   );
-  console.log(entities.length)
 }
 
 
@@ -85,6 +82,7 @@ class Boid{
     this.clr = this.origin_clr;
     
     this.index = i;
+    this.nearby = []
   }
 
   Move(){
@@ -136,7 +134,6 @@ class Boid{
     
     
     if(this.nearby.length > 0){
-      
       let newClr = this.nearby[0].clr;
       for(let nearbyEntity of this.nearby){
         if (nearbyEntity.clr != this.clr){
@@ -144,6 +141,23 @@ class Boid{
         }
       }
       this.clr = newClr
+      this.colorsApperanceMap = {} 
+      // this.colorsApperanceMap[this.clr] = 1
+      this.visited = []
+      this.colorCount = 0
+      
+      this.depthFirstSearch(this);
+      let currentMax = 0
+      let currentMaxClr = undefined
+      for(const [key, value] of Object.entries(this.colorsApperanceMap)){
+        if(value > currentMax){
+          currentMaxClr = key
+          currentMax = value
+        } 
+      } 
+      // console.log(this.clr, currentMaxClr)
+      this.clr = parseFloat(currentMaxClr);
+
 
       
     }
@@ -208,7 +222,28 @@ class Boid{
 
     this.acc.add(helpVec); 
   }
+  depthFirstSearch(boid){
+    // colorsApperanceMap = {
+    //   color: count,
 
+    // }
+    if(this.visited.includes(boid.index)) return ;
+     
+    this.visited.push(boid.index)
+    if (this.colorsApperanceMap?.[boid.clr]){
+      this.colorsApperanceMap[boid.clr] += 1
+
+    }
+    else{
+      this.colorsApperanceMap[boid.clr] = 1
+    }
+    for(let nearbyBoid of boid.nearby){
+      // appending colors/ incrementing count
+
+      
+      this.depthFirstSearch(nearbyBoid)
+    }
+  }
 
   Live(){
 
