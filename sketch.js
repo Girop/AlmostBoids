@@ -1,9 +1,14 @@
 let populationVal,speedLimit,viewDistance,separationForce,aligmentForce,cohesionForce,p;
 let entities = [];
 
+
 function setup() {
+
+  // let framerate = 60;
+
   createCanvas(window.innerWidth, window.innerHeight);
-  // createCanvas(1000, 800);
+  // frameRate(framerate);
+
 
   window.addEventListener('resize', resizeCanvasCallback, false);
   function resizeCanvasCallback() {
@@ -20,7 +25,8 @@ function setup() {
       factdiv = 1920;
     }
   }
-  populationVal = 90;
+
+  populationVal = 1;
   speedLimit = 3;
   viewDistance = 50;
   
@@ -51,10 +57,9 @@ function draw() {
 
 }
 
-// function mouseClicked(){
-//   p = random(0,360);
-//   console.log(p);
-// }
+function mouseClicked(){
+  p = random(0,360);
+}
 
 function mouseDragged(){
   // console.log(p);
@@ -127,8 +132,7 @@ class Boid{
   }
 
   ColourChange(){
-    // let whitness = 0;
-    this.clr = this.origin_clr;
+      this.clr = this.origin_clr;
     
     
     if(this.nearby.length > 0){
@@ -140,7 +144,6 @@ class Boid{
         }
       }
       this.clr = newClr
-
 
       
     }
