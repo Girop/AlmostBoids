@@ -4,10 +4,7 @@ let entities = [];
 
 function setup() {
 
-  // let framerate = 60;
-
   createCanvas(window.innerWidth, window.innerHeight);
-  // frameRate(framerate);
 
 
   window.addEventListener('resize', resizeCanvasCallback, false);
@@ -42,7 +39,7 @@ function setup() {
       i,
       random(0,width),
       random(0,height),
-      random(0, 360),
+      Math.floor(Math.random()*360)
       );
   }
   
@@ -66,7 +63,7 @@ function mouseDragged(){
     entities.length + 1,
     mouseX,
     mouseY,
-    random(0, 360)
+    Math.floor(Math.random()*360)
     ) 
   );
 }
@@ -131,7 +128,7 @@ class Boid{
 
   ColourChange(){
       this.clr = this.origin_clr;
-    
+      
     
     if(this.nearby.length > 0){
       let newClr = this.nearby[0].clr;
@@ -140,6 +137,7 @@ class Boid{
           newClr = nearbyEntity.clr
         }
       }
+      
       this.clr = newClr
       this.colorsApperanceMap = {} 
       // this.colorsApperanceMap[this.clr] = 1
@@ -171,6 +169,7 @@ class Boid{
   
   Show(){
     push();
+    noStroke();
     translate(this.position.x,this.position.y);
     rotate(this.velocity.heading());
     triangle(this.a*2,0,-this.a,-this.a,-this.a,this.a);
@@ -245,6 +244,15 @@ class Boid{
     }
   }
 
+  RelationDraw(){
+    this.nearby.forEach( nearBoid => {
+      strokeWeight(0.25);  
+      stroke(0,0,100);
+      line(this.position.x,this.position.y,nearBoid.position.x,nearBoid.position.y);
+    })
+  }
+
+
   Live(){
 
     this.NearbyCheck();
@@ -255,7 +263,7 @@ class Boid{
       this.Cohesion();
     }
     
-    
+    this.RelationDraw();
     this.BorderCheck();
     this.Move();
     this.ColourChange();
