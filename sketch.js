@@ -1,5 +1,6 @@
 let populationVal,speedLimit,viewDistance,separationForce,aligmentForce,cohesionForce,p;
 let entities = [];
+let Settings = new Map();
 
 
 function setup() {
@@ -22,6 +23,19 @@ function setup() {
     }
   }
 
+  let CheckBoxes = document.getElementsByTagName("input")
+  CheckBoxes.forEach( checkbox =>{
+    Settings.set(checkbox.name,checkbox.checked)
+  })
+
+  for(let checkbox of CheckBoxes){
+    checkbox.addEventListener('change',function(){
+      Settings.set(checkbox.name,checkbox.checked)
+    })
+  }
+  
+
+
   populationVal = 50;
   speedLimit = 3;
   viewDistance = 50;
@@ -42,19 +56,21 @@ function setup() {
       Math.floor(Math.random()*360)
       );
   }
+
   
 }
 
 function draw() {
+  
+
   background(0);
   for(let i = 0;i < entities.length;i++){
-    entities[i].Live(i);
+    entities[i].Live();
   }
-
 }
 
 function mouseClicked(){
-  p = random(0,360);
+  p = Math.floor(Math.random() * 360);
 }
 
 function mouseDragged(){
@@ -77,7 +93,7 @@ class Boid{
     this.acc = createVector();
     this.origin_clr = passClr;
     this.clr = this.origin_clr;
-    
+
     this.index = i;
     this.nearby = []
   }
@@ -88,16 +104,16 @@ class Boid{
     this.velocity.limit(speedLimit);
     this.position.add(this.velocity);
      
+    this.acc.mult(0);
   } 
 
   
   NearbyCheck(){
 
-    this.nearby = []; 
+    this.nearby = [];
+
     for(let j = 0;j < entities.length;j++){
       let entity = entities[j]
-
-
 
         let d = dist(
           this.position.x, 
@@ -177,7 +193,7 @@ class Boid{
   }
 
 
-  Aligmnet(){
+  Alignment(){
     let alVec = createVector();
 
     this.nearby.forEach(nearBoid =>{
@@ -191,7 +207,7 @@ class Boid{
     this.acc.add(alVec);
   }
 
-  Separtion(){
+  Separation(){
     let sepVec = createVector(0,0);
     
     this.nearby.forEach(nearBoid =>{
@@ -255,22 +271,21 @@ class Boid{
 
   Live(){
 
-    this.NearbyCheck();
+    this.NearbyCheck(); 
     
     if(this.nearby.length > 0){
-      this.Aligmnet();
-      this.Separtion();
-      this.Cohesion();
+      for(let setting of Settings){
+        if(setting[1]){
+          eval(setting[0])
+        }
+      }
     }
     
-    this.RelationDraw();
+
     this.BorderCheck();
     this.Move();
     this.ColourChange();
     this.Show();
     
-    this.acc.mult(0);
-
-    this.nearby = [];
   }
 } 
