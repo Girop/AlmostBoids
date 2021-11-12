@@ -1,8 +1,37 @@
 html, body {
   margin: 0;
   padding: 0;
+  font: 1em sans-serif;
 }
 
 canvas {
   display: block;
+  z-index: -1;
+}
+
+#BigOption{
+  font-size: 35px;
+  font-weight: 600;
+}
+
+#Control_panel{
+  width: 150px;
+  height: auto;
+  padding: 10px;
+  margin: 10px;
+
+  text-align: center;
+  font-size: 18px;
+  color: aliceblue;
+  background-color: rgba(0,0,0,0);
+  border: 1px rgb(255, 255, 255);
+  border-style: solid;
+  border-radius: 18px;
+  
+  
+
+  z-index: 1;
+  position:absolute;
+
+
 }
