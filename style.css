@@ -14,6 +14,10 @@ canvas {
   font-weight: 600;
 }
 
+#Speed{
+  width: 75%;
+}
+
 #Control_panel{
 
   width: 150px;

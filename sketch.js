@@ -1,12 +1,24 @@
 let populationVal,speedLimit,viewDistance,separationForce,aligmentForce,cohesionForce,p;
+let chunkNum;
 let entities = [];
 let Settings = new Map();
-
+let Tiles = new Map();
+let BoidsInChunks = new Map();
 
 function setup() {
 
-  createCanvas(window.innerWidth, window.innerHeight);
+  populationVal = 5;
+  speedLimit = 2;
+  viewDistance = 50;
+  
+  aligmentForce = 0.3;
+  separationForce = 0.15;
+  cohesionForce = 0.33;
 
+  chunkNum = 16;
+
+
+  createCanvas(window.innerWidth, window.innerHeight);
 
   window.addEventListener('resize', resizeCanvasCallback, false);
   function resizeCanvasCallback() {
@@ -21,32 +33,33 @@ function setup() {
       factor = windowWidth;
       factdiv = 1920;
     }
+
+    CreateChunks()
   }
 
-  let CheckBoxes = document.getElementsByTagName("input")
+  // Ogar sliderze
+  let SpeedSlider = document.getElementById("Speed")
+  SpeedSlider.addEventListener("change",speedchanged)
+  function speedchanged(){
+    speedLimit = SpeedSlider.value;
+  }
+
+  let CheckBoxes = document.querySelectorAll("input[type=checkbox]")
   CheckBoxes.forEach( checkbox =>{
     Settings.set(checkbox.name,checkbox.checked)
   })
+
 
   for(let checkbox of CheckBoxes){
     checkbox.addEventListener('change',function(){
       Settings.set(checkbox.name,checkbox.checked)
     })
-  }
+  } 
   
-
-
-  populationVal = 50;
-  speedLimit = 3;
-  viewDistance = 50;
-  
-  aligmentForce = 0.3;
-  separationForce = 0.15;
-  cohesionForce = 0.33;
+  CreateChunks()
 
   colorMode(HSB);
-  
-  //Boids init  
+
   for(let i = 0;i < populationVal;i++){
 
     entities[i] = new Boid(
@@ -56,17 +69,17 @@ function setup() {
       Math.floor(Math.random()*360)
       );
   }
-
-  
 }
 
-function draw() {
-  
 
-  background(0);
+function draw() {
+
+  background(0,0,0);
+
   for(let i = 0;i < entities.length;i++){
     entities[i].Live();
   }
+
 }
 
 function mouseClicked(){
@@ -84,18 +97,41 @@ function mouseDragged(){
   );
 }
 
+function CreateChunks(){
+  let i,j;
+  i = 0;
+  j = 0;
+
+  for(let n =0; n< width; n+=width/chunkNum){
+    for(let m = 0; m < height; m+= height/chunkNum){
+      let size = [n,m,n + width/chunkNum,m + width/chunkNum]
+      let key = str(j) + "-"+ str(i)
+      Tiles.set(key,size)
+      i++
+    }
+    i=0;
+    j++
+  }
+
+  let empty = []
+  for(let key1 of Tiles.keys){
+    BoidsInChunks.set(key1,empty)
+  }
+}
 
 class Boid{
   constructor(i,x,y,passClr){
-    this.a = 6;
-    this.position = createVector(x,y);
-    this.velocity = p5.Vector.random2D();
-    this.acc = createVector();
-    this.origin_clr = passClr;
-    this.clr = this.origin_clr;
+    this.a = 6
+    this.origin_clr = passClr
+    this.clr = this.origin_clr
 
-    this.index = i;
+    this.position = createVector(x,y)
+    this.velocity = p5.Vector.random2D()
+    this.acc = createVector()
+
+    this.index = i
     this.nearby = []
+
   }
 
   Move(){
@@ -107,7 +143,33 @@ class Boid{
     this.acc.mult(0);
   } 
 
-  
+  Chunks(){
+    for(let j = 0; j < chunkNum; j++){
+
+      for(let i = 0;i < chunkNum;i++){
+        let key = str(j) + "-"+ str(i)
+        let a = Tiles.get(key)
+        if(this.position.y > a[1] && this.position.y < a[3]){
+          if(this.position.x > a[0] && this.position.x < a[2]){
+            let val = BoidsInChunks.get(key);
+            val.push(this.index)
+            if(Tiles.has(val)){
+              deleteExistingInMap(this.index); // Kolejna iteracja, serio ? 
+            }
+
+            BoidsInChunks.set(key,val)
+            this.chunk = key
+
+            return true
+          }
+        }
+      }
+    }
+
+    return false
+  }
+
+
   NearbyCheck(){
 
     this.nearby = [];
@@ -237,6 +299,7 @@ class Boid{
 
     this.acc.add(helpVec); 
   }
+
   depthFirstSearch(boid){
     // colorsApperanceMap = {
     //   color: count,
@@ -268,10 +331,10 @@ class Boid{
     })
   }
 
-
   Live(){
 
-    this.NearbyCheck(); 
+    this.Chunks()
+    this.NearbyCheck() 
     
     if(this.nearby.length > 0){
       for(let setting of Settings){
@@ -282,10 +345,11 @@ class Boid{
     }
     
 
-    this.BorderCheck();
-    this.Move();
-    this.ColourChange();
-    this.Show();
+    this.BorderCheck()
+    this.Move()
+    console.log(this.chunks)
+    this.ColourChange() 
+    this.Show()
     
   }
 } 
