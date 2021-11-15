@@ -1,9 +1,12 @@
-let populationVal,speedLimit,viewDistance,separationForce,aligmentForce,cohesionForce,p;
+let StartPopVal,speedLimit,viewDistance,separationForce,aligmentForce,cohesionForce,p,populationVal;
+let popInput;
 let entities = [];
+let fadingEntities = [];
 let Settings = new Map();
 
 
 function setup() {
+  colorMode(HSB);
 
   createCanvas(window.innerWidth, window.innerHeight);
 
@@ -23,7 +26,37 @@ function setup() {
     }
   }
 
-  let CheckBoxes = document.getElementsByTagName("input")
+  
+  // Three basic rules don't depend on SpeedLimit
+  // let SpeedSlider = document.getElementById("SpeedLimit")
+  // SpeedSlider.addEventListener("change", SpeedChanged)
+  // function SpeedChanged(){
+  //   speedLimit = SpeedSlider.value;
+  // } 
+
+
+  popInput = document.getElementById('Population')
+  popInput.addEventListener('change',popChange) 
+  function popChange() {
+    populationVal = popInput.value;
+    if(populationVal > entities.length){
+
+      for(let i = 0; i < populationVal - entities.length;i++){
+        entities.push(new Boid(
+          entities.length + 1, 
+          Math.floor(Math.random() * width), 
+          Math.floor(Math.random() * height),
+          Math.floor(Math.random() * 360) 
+        ))
+      }
+    } else if(populationVal < entities.length){
+      for(let i = 0; i < entities.length - populationVal;i++){
+        fadingEntities.push(entities[i])
+      }
+    }
+  }
+
+  let CheckBoxes = document.querySelectorAll("input[type=checkbox]")
   CheckBoxes.forEach( checkbox =>{
     Settings.set(checkbox.name,checkbox.checked)
   })
@@ -34,43 +67,50 @@ function setup() {
     })
   }
   
-
-
-  populationVal = 50;
+  StartPopVal = 10;
   speedLimit = 3;
   viewDistance = 50;
   
   aligmentForce = 0.3;
-  separationForce = 0.15;
+  separationForce = 0.16;
   cohesionForce = 0.33;
 
-  colorMode(HSB);
+ 
   
   //Boids init  
-  for(let i = 0;i < populationVal;i++){
+  for(let i = 0;i < StartPopVal;i++){
 
     entities[i] = new Boid(
       i,
       random(0,width),
       random(0,height),
-      Math.floor(Math.random()*360)
+      Math.floor(Math.random()*360)      
       );
-  }
-
-  
+  } 
 }
 
-function draw() {
-  
+function draw(){
 
   background(0);
-  for(let i = 0;i < entities.length;i++){
-    entities[i].Live();
+  if(fadingEntities.length > 0){
+    for(let i = 0; i < fadingEntities.length;i++){
+      fadingEntities[i].Live(true)
+    }
   }
+
+  for(let i = fadingEntities.length;i < entities.length;i++){
+    entities[i].Live()
+  }
+  
+  document.getElementById("BoidCounter").innerHTML = entities.length
 }
 
-function mouseClicked(){
-  p = Math.floor(Math.random() * 360);
+function mousePressed() {
+  p = Math.floor(Math.random() * 360)
+}
+
+function mouseReleased() {
+  popInput.value = entities.length;
 }
 
 function mouseDragged(){
@@ -84,6 +124,14 @@ function mouseDragged(){
   );
 }
 
+const HSBToRGB = (h, s, b) => {
+  s /= 100;
+  b /= 100;
+  const k = (n) => (n + h / 60) % 6;
+  const f = (n) => b * (1 - s * Math.max(0, Math.min(k(n), 4 - k(n), 1)));
+  return [255 * f(5), 255 * f(3), 255 * f(1)];
+};
+
 
 class Boid{
   constructor(i,x,y,passClr){
@@ -93,8 +141,11 @@ class Boid{
     this.acc = createVector();
     this.origin_clr = passClr;
     this.clr = this.origin_clr;
+    this.groupClr = this.clr;
 
-    this.index = i;
+    this.alpha = 100  
+
+    this.index = i
     this.nearby = []
   }
 
@@ -114,16 +165,13 @@ class Boid{
 
     for(let j = 0;j < entities.length;j++){
       let entity = entities[j]
+        let dVec = createVector(entity.position.x, entity.position.y)
+        let d = dVec.dist(this.position)
 
-        let d = dist(
-          this.position.x, 
-          this.position.y, 
-          entity.position.x, 
-          entity.position.y
-        );
         if(this.index != j && d < viewDistance ){
+          // let head = this.velocity.heading()
+          // console.log(head)
           this.nearby.push(entity);
-          
         }
     }
   
@@ -143,8 +191,8 @@ class Boid{
   }
 
   ColourChange(){
-      this.clr = this.origin_clr;
-      
+    this.clr = this.origin_clr;
+
     
     if(this.nearby.length > 0){
       let newClr = this.nearby[0].clr;
@@ -171,18 +219,36 @@ class Boid{
       } 
       // console.log(this.clr, currentMaxClr)
       this.clr = parseFloat(currentMaxClr);
-
-
       
     }
     else{
       this.clr = this.origin_clr
     }
     this.clr %= 360;
-    fill(this.clr,80,100);
+    this.groupClr = this.clr
 
+    fill(this.clr,80,100)
+    
   }
   
+  Fading(){
+    console.log(this.GroupClr)
+    let DyingClr = HSBToRGB(this.GroupClr,80,100)
+    // console.log(DyingClr)
+    this.clr = DyingClr
+
+    colorMode(RGB)
+
+    if(alpha > 0){
+      fill(this.clr,alpha)
+      this.alpha--
+    } else {
+      entities.splice(this.index)
+    }
+    
+    colorMode(HSB)
+  }
+
   Show(){
     push();
     noStroke();
@@ -191,7 +257,6 @@ class Boid{
     triangle(this.a*2,0,-this.a,-this.a,-this.a,this.a);
     pop();
   }
-
 
   Alignment(){
     let alVec = createVector();
@@ -232,11 +297,13 @@ class Boid{
     weightCenter.div(this.nearby.length);
 
     let helpVec = createVector( weightCenter.x - this.position.x,weightCenter.y - this.position.y );
+    
     helpVec.normalize();
     helpVec.limit(cohesionForce);
 
     this.acc.add(helpVec); 
   }
+
   depthFirstSearch(boid){
     // colorsApperanceMap = {
     //   color: count,
@@ -269,9 +336,9 @@ class Boid{
   }
 
 
-  Live(){
+  Live(fader = false){
 
-    this.NearbyCheck(); 
+    this.NearbyCheck()
     
     if(this.nearby.length > 0){
       for(let setting of Settings){
@@ -282,10 +349,14 @@ class Boid{
     }
     
 
-    this.BorderCheck();
-    this.Move();
-    this.ColourChange();
-    this.Show();
+    this.BorderCheck()
+    this.Move()
+    if(!fader){
+      this.ColourChange()
+    } else {
+      this.Fading()
+    }
+    this.Show()
     
   }
 } 

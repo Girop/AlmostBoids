@@ -12,8 +12,8 @@
   </head>
 
   <body>
-    <dl id="Control_panel">
-      <p id="BigOption">Options</p>
+    <dl id="Control_panel" class="Panels">
+      <p class="BigText">Options</p>
         
       <dt>Show relations
           <input type="checkbox" id="Relations" name="this.RelationDraw()" >
@@ -30,7 +30,22 @@
       <dt> Cohesion 
         <input type="checkbox" id="Cohesion" name="this.Cohesion()" checked>
       </dte>
+
+      <dt> Set population
+        <input type="number" id="Population" min="0" max="200">  
+      </dt>
+      <!-- <dt> Speed
+        <input type="range" id="SpeedLimit" min="0" max="10" value="2" step="1">
+      </dt>  -->
     </dl>
+
+    <dl id="StatPanel" class="Panels">
+      <p class="BigText"> Stats </p>
+      <dt>Number of Boids: 
+        <p id="BoidCounter"></p>
+      </dt>
+    </dl>
+
 
     <script src="sketch.js"></script>
 

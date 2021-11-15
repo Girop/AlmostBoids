@@ -9,29 +9,41 @@ canvas {
   z-index: -1;
 }
 
-#BigOption{
-  font-size: 35px;
-  font-weight: 600;
+dt{
+  padding-top: 5px;
 }
 
-#Control_panel{
+.Panels{
+
+  text-align: center;
+  font-size: 18px;
+  color: rgb(240, 248, 255);
+  background-color: transparent;
+  border: 1px rgb(255, 255, 255);
+  border-style: solid;
+  border-radius: 22px;
 
   width: 150px;
   height: auto;
   padding: 10px;
   margin: 10px;
-
-  text-align: center;
-  font-size: 18px;
-  color: rgb(240, 248, 255);
-  background-color: rgba(0,0,0,0);
-  border: 1px rgb(255, 255, 255);
-  border-style: solid;
-  border-radius: 18px;
-  
-
+  margin-top: 15px;
   z-index: 1;
   position:absolute;
+}
+
+.BigText{
+  font-size: 35px;
+  font-weight: 600;
+}
 
 
+#Control_panel{
+  margin-left: 15px;
+  left: 0;
+}
+
+#StatPanel{
+  margin-right: 15px;
+  right: 0;
 }
