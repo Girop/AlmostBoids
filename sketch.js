@@ -1,7 +1,6 @@
 let StartPopVal,speedLimit,viewDistance,separationForce,aligmentForce,cohesionForce,p,populationVal;
 let popInput;
 let entities = [];
-let fadingEntities = [];
 let Settings = new Map();
 
 
@@ -50,8 +49,10 @@ function setup() {
         ))
       }
     } else if(populationVal < entities.length){
-      for(let i = 0; i < entities.length - populationVal;i++){
-        fadingEntities.push(entities[i])
+      let k = 1
+      while(k < entities.length - populationVal){
+        entities[k*(-1)].fader = true
+        k++
       }
     }
   }
@@ -90,23 +91,13 @@ function setup() {
 }
 
 function draw(){
+  background(0)
 
-  background(0);
-  if(fadingEntities.length > 0){
-    for(let i = 0; i < fadingEntities.length;i++){
-      fadingEntities[i].Live(true)
-    }
-  }
-
-  for(let i = fadingEntities.length;i < entities.length;i++){
+  for(let i = 0;i < entities.length;i++){
     entities[i].Live()
   }
   
   document.getElementById("BoidCounter").innerHTML = entities.length
-}
-
-function mousePressed() {
-  p = Math.floor(Math.random() * 360)
 }
 
 function mouseReleased() {
@@ -114,7 +105,7 @@ function mouseReleased() {
 }
 
 function mouseDragged(){
-  
+
   entities.push(new Boid(
     entities.length + 1,
     mouseX,
@@ -143,6 +134,7 @@ class Boid{
     this.clr = this.origin_clr;
     this.groupClr = this.clr;
 
+    this.fader = false
     this.alpha = 100  
 
     this.index = i
@@ -169,12 +161,10 @@ class Boid{
         let d = dVec.dist(this.position)
 
         if(this.index != j && d < viewDistance ){
-          // let head = this.velocity.heading()
-          // console.log(head)
           this.nearby.push(entity);
         }
     }
-  
+    
   }
 
   BorderCheck(){
@@ -227,28 +217,21 @@ class Boid{
     this.clr %= 360;
     this.groupClr = this.clr
 
-    fill(this.clr,80,100)
-    
-  }
-  
-  Fading(){
-    console.log(this.GroupClr)
-    let DyingClr = HSBToRGB(this.GroupClr,80,100)
-    // console.log(DyingClr)
-    this.clr = DyingClr
-
     colorMode(RGB)
 
-    if(alpha > 0){
-      fill(this.clr,alpha)
+    let RgbClr = HSBToRGB(this.clr,80,100)
+    if(this.fader){
       this.alpha--
-    } else {
-      entities.splice(this.index)
-    }
-    
+      if(this.alpha <= 0){
+        entities.slice(this.index)
+      }
+    } 
+
+    fill(RgbClr,this.alpha)
+
     colorMode(HSB)
   }
-
+  
   Show(){
     push();
     noStroke();
@@ -336,7 +319,7 @@ class Boid{
   }
 
 
-  Live(fader = false){
+  Live(){
 
     this.NearbyCheck()
     
@@ -347,15 +330,10 @@ class Boid{
         }
       }
     }
-    
 
     this.BorderCheck()
     this.Move()
-    if(!fader){
-      this.ColourChange()
-    } else {
-      this.Fading()
-    }
+    this.ColourChange()
     this.Show()
     
   }
