@@ -25,22 +25,13 @@ function setup() {
     }
   }
 
-  
-  // Three basic rules don't depend on SpeedLimit
-  // let SpeedSlider = document.getElementById("SpeedLimit")
-  // SpeedSlider.addEventListener("change", SpeedChanged)
-  // function SpeedChanged(){
-  //   speedLimit = SpeedSlider.value;
-  // } 
-
-
   popInput = document.getElementById('Population')
   popInput.addEventListener('change',popChange) 
   function popChange() {
     populationVal = popInput.value;
     if(populationVal > entities.length){
-
-      for(let i = 0; i < populationVal - entities.length;i++){
+      let current = entities.length
+      for(let i = 0; i < populationVal - current;i++){
         entities.push(new Boid(
           entities.length + 1, 
           Math.floor(Math.random() * width), 
@@ -49,10 +40,8 @@ function setup() {
         ))
       }
     } else if(populationVal < entities.length){
-      let k = 1
-      while(k < entities.length - populationVal){
-        entities[k*(-1)].fader = true
-        k++
+      for(let i =0;i< entities.length - populationVal;i++){
+        entities.splice(entities.length - i - 1)
       }
     }
   }
@@ -115,15 +104,6 @@ function mouseDragged(){
   );
 }
 
-const HSBToRGB = (h, s, b) => {
-  s /= 100;
-  b /= 100;
-  const k = (n) => (n + h / 60) % 6;
-  const f = (n) => b * (1 - s * Math.max(0, Math.min(k(n), 4 - k(n), 1)));
-  return [255 * f(5), 255 * f(3), 255 * f(1)];
-};
-
-
 class Boid{
   constructor(i,x,y,passClr){
     this.a = 6;
@@ -134,7 +114,8 @@ class Boid{
     this.clr = this.origin_clr;
     this.groupClr = this.clr;
 
-    this.fader = false
+    this.clringTime = 30
+
     this.alpha = 100  
 
     this.index = i
@@ -214,24 +195,26 @@ class Boid{
     else{
       this.clr = this.origin_clr
     }
+
+    // this.clrTimer()
+
     this.clr %= 360;
-    this.groupClr = this.clr
+    fill(this.clr,80,100)
 
-    colorMode(RGB)
-
-    let RgbClr = HSBToRGB(this.clr,80,100)
-    if(this.fader){
-      this.alpha--
-      if(this.alpha <= 0){
-        entities.slice(this.index)
-      }
-    } 
-
-    fill(RgbClr,this.alpha)
-
-    colorMode(HSB)
   }
-  
+
+  clrTimer(){
+    if(this.clr == this.groupClr){
+      this.clringTime--
+      if(this.clringTime < 0){
+        this.clr += 1.75
+      }
+    } else {
+      this.clringTime = 30
+    }
+  }
+
+
   Show(){
     push();
     noStroke();
@@ -333,8 +316,11 @@ class Boid{
 
     this.BorderCheck()
     this.Move()
+    // this.clrTimer()
     this.ColourChange()
     this.Show()
     
+    this.groupClr = this.clr
+
   }
 } 
