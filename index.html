@@ -1,54 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Boids</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" type="text/css" href="style.css">
+  <title>Boids</title>
 
-    <script src="libraries/p5.min.js"></script>
-  </head>
+  <link rel="stylesheet" type="text/css" href="style.css">
 
-  <body>
-    <div id="Container">
-      <dl id="Control_panel" class="Panels">
-        <p class="BigText">Options</p>
-          
-        <dt>Show relations
-            <input type="checkbox" id="Relations" name="this.RelationDraw()" >
-        </dt>
+  <script src="libraries/p5.min.js"></script>
+</head>
 
-        <dt > Alignment 
-          <input type="checkbox" id="Alignment" name="this.Alignment()" checked>
-        </dt>
+<body>
+  <div id="Container">
+    <dl id="Control_panel" class="Panels">
+      <p class="BigText">Options</p>
 
-        <dt> Separation 
-          <input type="checkbox" id="Separation" name="this.Separation()" checked>
-        </dt>
-        
-        <dt> Cohesion 
-          <input type="checkbox" id="Cohesion" name="this.Cohesion()" checked>
+      <dt>Show relations
+        <input type="checkbox" id="Relations" name="this.RelationDraw()">
+      </dt>
+
+      <dt> Alignment
+        <input type="checkbox" id="Alignment" name="this.Alignment()" checked>
+      </dt>
+
+      <dt> Separation
+        <input type="checkbox" id="Separation" name="this.Separation()" checked>
+      </dt>
+
+      <dt> Cohesion
+        <input type="checkbox" id="Cohesion" name="this.Cohesion()" checked>
         </dte>
 
-        <dt> Set population
-          <input type="number" id="Population" min="0" >  
-        </dt>
-        <!-- <dt> Speed
+      <dt> Set population
+        <input type="number" id="Population" min="0">
+      </dt>
+      <!-- <dt> Speed
           <input type="range" id="SpeedLimit" min="0" max="10" value="2" step="1">
         </dt>  -->
-      </dl>
+    </dl>
 
-      <dl id="StatPanel" class="Panels">
-        <p class="BigText"> Stats </p>
-        <dt>Number of Boids: 
-          <p id="BoidCounter"></p>
-        </dt>
-      </dl>
-   </div>
+    <dl id="StatPanel" class="Panels">
+      <p class="BigText"> Stats </p>
+      <dt>Number of Boids:
+        <p id="BoidCounter"></p>
+      </dt>
+    </dl>
+  </div>
 
-    <script src="sketch.js"></script>
+  <script src="sketch.js"></script>
 
-  </body>
+</body>
+
 </html>
